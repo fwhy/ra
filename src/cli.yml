@@ -1,0 +1,15 @@
+name: ra
+version: 0.1.0
+author: fwhy <prog@fullwidth-hyphen.tech>
+about: Simple Markdown Server
+args:
+  - directory:
+      short: d
+      long: dir
+      takes_value: true
+      about: "Document root directory. Default: current directory"
+  - port:
+      short: p
+      long: port
+      takes_value: true
+      about: "Use port number. Default: 8380"

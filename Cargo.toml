@@ -1,0 +1,13 @@
+[package]
+name = "ra"
+version = "0.1.0"
+edition = "2018"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+actix-web = "3.3.2"
+clap = { version = "3.0.0-beta.2", features = ["yaml"] }
+env_logger = "0.8.4"
+log = "0.4.14"
+pulldown-cmark = "0.8.0"
