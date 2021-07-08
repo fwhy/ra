@@ -3,21 +3,24 @@ Simple markdown server
 
 **TOC**
 * [Install](#install)
+  * [Linux](#linux)
+  * [Windows (Administrator PowerShell)](#windows-administrator-powershell)
+  * [macOS (Intel)](#macos-intel)
 * [Command](#command)
 * [Usage](#usage)
 
 ## Install
 Download binary from release page.
-**Linux**
+### Linux
 ```console
 $ sudo curl -L "https://github.com/fwhw/ra/releases/download/v0.1.0/ra-Linux-x86_64" -o /usr/local/bin/ra
 $ sudo chmod +x /usr/local/bin/ra
 ```
-**Windows(Administrator PowerShell)**
+### Windows (Administrator PowerShell)
 ```console
 PS>  Invoke-WebRequest "https://github.com/fwhy/ra/releases/download/v0.1.0/ra-Windows-x86_64.exe" -UseBasicParsing -OutFile $Env:ProgramFiles\ra\ra.exe
 ```
-**macOS(Intel)**
+### macOS (Intel)
 ```console
 $ sudo curl -L "https://github.com/fwhw/ra/releases/download/v0.1.0/ra-Darwin-x86_64" -o /usr/local/bin/ra
 $ sudo curl +x /usr/local/bin/ra
