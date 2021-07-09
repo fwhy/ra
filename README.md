@@ -18,7 +18,11 @@ $ sudo chmod +x /usr/local/bin/ra
 ```
 ### Windows (Administrator PowerShell)
 ```console
-PS>  Invoke-WebRequest "https://github.com/fwhy/ra/releases/download/v0.1.0/ra-Windows-x86_64.exe" -UseBasicParsing -OutFile $Env:ProgramFiles\ra\ra.exe
+PS> New-Item $Env:ProgramFiles\ra
+PS> Invoke-WebRequest "https://github.com/fwhy/ra/releases/download/v0.1.0/ra-Windows-x86_64.exe" -UseBasicParsing -OutFile $Env:ProgramFiles\ra\ra.exe
+PS> $path = [Environment]::GetEnvironmentVariable("Path", "Machine")
+PS> $path += ";$Env:ProgramFiles\ra"
+PS> [Environment]::SetEnvironmentVariable("Path", $path, "Machine")
 ```
 ### macOS (Intel)
 ```console
