@@ -1,10 +1,6 @@
-use actix_web::{
-    get,
-    web::{Data, Path},
-    App as webApp, HttpResponse, HttpServer,
-};
-use clap::{load_yaml, App};
-use pulldown_cmark::{html::push_html, Options, Parser};
+#[macro_use]
+extern crate log;
+
 use std::{
     env::{current_dir, set_var},
     fs::{canonicalize, metadata, read_to_string},
@@ -12,8 +8,26 @@ use std::{
     path::PathBuf,
 };
 
-#[macro_use]
-extern crate log;
+use actix_web::{
+    get,
+    web::{Data, Path},
+    App, HttpResponse, HttpServer,
+};
+use clap::Parser as cliParser;
+use pulldown_cmark::{html::push_html, Options, Parser};
+
+/// Simple Markdown Server
+#[derive(cliParser, Debug)]
+#[clap(author, version, about, long_about = None)]
+struct Args {
+    /// Document root directory
+    #[clap(short, long, value_parser, default_value = ".")]
+    directory: String,
+
+    /// Use port number.
+    #[clap(short, long, value_parser, default_value = "8380")]
+    port: String,
+}
 
 struct RaData {
     root: String,
@@ -27,12 +41,13 @@ async fn index(data: Data<RaData>) -> HttpResponse {
         .body(format!("Document root: {}", data.root))
 }
 
-#[get("/{path}")]
-async fn md(Path(path): Path<String>, data: Data<RaData>) -> HttpResponse {
-    let file_path = format!("{}/{}.md", data.root, path);
+#[get("/{path:.*}")]
+async fn md(path: Path<(String,)>, data: Data<RaData>) -> HttpResponse {
+    let path = path.into_inner();
+    let file_path = format!("{}/{}.md", data.root, path.0);
 
     if metadata(file_path.clone()).is_err() {
-        error!("[404] /{} -> {}", path, file_path);
+        error!("[404] /{} -> {}", path.0, file_path);
         return HttpResponse::NotFound()
             .content_type("text/plain")
             .body("Not Found");
@@ -57,17 +72,16 @@ async fn md(Path(path): Path<String>, data: Data<RaData>) -> HttpResponse {
         body_str
     );
 
-    info!("[200] /{} -> {}", path, file_path);
+    info!("[200] /{} -> {}", path.0, file_path);
     HttpResponse::Ok().content_type("text/html").body(html_str)
 }
 
 #[actix_web::main]
 async fn main() -> Result<()> {
-    let yaml = load_yaml!("cli.yml");
-    let matches = App::from(yaml).get_matches();
+    let args = Args::parse();
 
-    let root = if matches.is_present("directory") {
-        let rel_str = PathBuf::from(matches.value_of("directory").unwrap().to_string());
+    let root = if args.directory != "" {
+        let rel_str = PathBuf::from(args.directory);
         canonicalize(&rel_str)
             .unwrap()
             .into_os_string()
@@ -77,27 +91,16 @@ async fn main() -> Result<()> {
         current_dir().unwrap().display().to_string()
     };
 
-    let port = if matches.is_present("port") {
-        matches.value_of("port").unwrap()
-    } else {
-        "8383"
-    };
-
     set_var("RUST_LOG", "info");
     env_logger::init();
 
     println!("Document root: {}", root);
-    println!("Running at  http://localhost:{}/", port);
+    println!("Running at  http://localhost:{}/", args.port);
 
     let data = Data::new(RaData { root });
 
-    HttpServer::new(move || {
-        webApp::new()
-            .app_data(data.clone())
-            .service(index)
-            .service(md)
-    })
-    .bind(format!("127.0.0.1:{}", port))?
-    .run()
-    .await
+    HttpServer::new(move || App::new().app_data(data.clone()).service(index).service(md))
+        .bind(format!("127.0.0.1:{}", args.port))?
+        .run()
+        .await
 }

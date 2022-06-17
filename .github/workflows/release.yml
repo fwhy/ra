@@ -47,7 +47,7 @@ jobs:
           - os: ubuntu-latest
             target: x86_64-unknown-linux-musl
             suffix: Linux-x86_64
-            ext:
+            ext: ''
           - os: windows-latest
             target: x86_64-pc-windows-msvc
             suffix: Windows-x86_64
@@ -55,7 +55,7 @@ jobs:
           - os: macos-latest
             target: x86_64-apple-darwin
             suffix: Darwin-x86_64
-            ext:
+            ext: ''
     runs-on: ${{ matrix.os }}
     steps:
       - name: Checkout
